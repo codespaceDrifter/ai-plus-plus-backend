@@ -6,12 +6,6 @@ from typing import List
 
 app = FastAPI()
 
-class Message(BaseModel):
-    message: str
-
-class Messages(BaseModel):
-    messages: List[Message]
-
 origins = [
     "http://localhost:5173",
     "http://ai-plus-plus.com"
@@ -25,16 +19,23 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+class Message(BaseModel):
+    core: str
+    isUser: bool
+
+class Messages(BaseModel):
+    messages: List[Message]
+
+
 memory_db = {"messages": []}
 
 @app.get("/messages", response_model=Message)
 def get_messages():
-    return Message(message="Default message")
+    return Message(core="Default message")
 
 @app.post("/messages", response_model=Message)
-def post_message(message: Message):
-    memory_db["messages"].append(message)
-    return message
+def post_message(core: str):
+    memory_db["messages"].append(Message(core=core))
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
