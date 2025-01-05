@@ -25,13 +25,30 @@ jobs:
         env:
           EC2_IP: ${{ secrets.EC2_IP }}
         run: |
-          ssh -i ~/.ssh/id_rsa ubuntu@$EC2_IP 'cd ai-plus-plus-backend && \
-          git pull && \
-          source venv/bin/activate && \
-          pkill -f "uvicorn main:app" || true && \
-          echo "Starting server..." > app.log && \
-          nohup uvicorn main:app --host 0.0.0.0 --port 8000 >> app.log 2>&1 & \
-          sleep 5 && \
-          if ! ps aux | grep -v grep | grep "uvicorn main:app" > /dev/null; then \
-            echo "Server failed to start" && exit 1; \
-          fi'
+          echo "🔍 Checking SSH key permissions..."
+          ls -l ~/.ssh/id_rsa
+          
+          echo "🔌 Testing basic SSH connection..."
+          ssh -i ~/.ssh/id_rsa ubuntu@$EC2_IP 'echo "SSH Connected!"' || { echo "❌ SSH connection failed"; exit 1; }
+          
+          echo "📂 Attempting deployment..."
+          ssh -i ~/.ssh/id_rsa ubuntu@$EC2_IP '\
+            echo "1. Changing directory..." && \
+            cd ai-plus-plus-backend && \
+            echo "2. Current directory: $(pwd)" && \
+            echo "3. Pulling latest code..." && \
+            git pull && \
+            echo "4. Activating venv..." && \
+            source venv/bin/activate && \
+            echo "5. Killing old process..." && \
+            pkill -f "uvicorn main:app" || true && \
+            echo "6. Starting server..." && \
+            nohup uvicorn main:app --host 0.0.0.0 --port 8000 >> app.log 2>&1 & \
+            echo "7. Waiting for server..." && \
+            sleep 5 && \
+            echo "8. Checking if server is running..." && \
+            if ! ps aux | grep -v grep | grep "uvicorn main:app" > /dev/null; then \
+              echo "❌ Server failed to start" && exit 1; \
+            else \
+              echo "✅ Server started successfully"; \
+            fi'
