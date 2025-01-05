@@ -25,6 +25,10 @@ app.add_middleware(
     expose_headers=["*"]
 )
 
+@app.get("/health")
+async def health_check():
+    return {"status": "running"}
+
 class Message(BaseModel):
     core: str
     isUser: bool
