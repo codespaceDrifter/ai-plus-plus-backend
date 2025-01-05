@@ -25,8 +25,7 @@ jobs:
           ssh -v -i ~/.ssh/id_rsa ubuntu@$EC2_IP 'cd ai-plus-plus-backend && \
           git pull && \
           source venv/bin/activate && \
+          which uvicorn && \
+          echo $PATH && \
           pkill -f "uvicorn main:app" || true && \
-          nohup uvicorn main:app --host 0.0.0.0 --port 8000 > app.log 2>&1 & \
-          sleep 5 && \
-          ps aux | grep uvicorn && \
-          tail -n 20 app.log'
+          nohup uvicorn main:app --host 0.0.0.0 --port 8000 > app.log 2>&1 &'
