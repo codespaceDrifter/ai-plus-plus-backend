@@ -13,7 +13,9 @@ origins = [
     "http://ai-plus-plus.com",
     "https://ai-plus-plus.com",
     "http://www.ai-plus-plus.com",
-    "https://www.ai-plus-plus.com"
+    "https://www.ai-plus-plus.com",
+    "http://api.ai-plus-plus.com",
+    "https://api.ai-plus-plus.com",
 ]
 
 app.add_middleware(
