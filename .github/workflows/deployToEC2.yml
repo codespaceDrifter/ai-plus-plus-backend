@@ -25,8 +25,30 @@ jobs:
         env:
           EC2_IP: ${{ secrets.EC2_IP }}
         run: |
+          # Test SSH connection and show verbose output
+          echo "Testing SSH connection..."
+          ssh -v -i ~/.ssh/id_rsa ubuntu@$EC2_IP 'echo "SSH connection successful"'
+          
+          # Test directory existence and permissions
+          echo "Checking directory..."
+          ssh -i ~/.ssh/id_rsa ubuntu@$EC2_IP 'pwd && ls -la'
+          ssh -i ~/.ssh/id_rsa ubuntu@$EC2_IP 'test -d ai-plus-plus-backend && echo "Directory exists" || echo "Directory not found"'
+          
+          # Test git access and status
+          echo "Testing git..."
+          ssh -i ~/.ssh/id_rsa ubuntu@$EC2_IP 'cd ai-plus-plus-backend && git status || echo "Git failed"'
+          
+          # Test virtual environment
+          echo "Testing venv..."
+          ssh -i ~/.ssh/id_rsa ubuntu@$EC2_IP 'cd ai-plus-plus-backend && test -d venv && echo "venv exists" || echo "venv not found"'
+          
+          # Now try the actual deployment
+          echo "Starting deployment..."
           ssh -i ~/.ssh/id_rsa ubuntu@$EC2_IP 'cd ai-plus-plus-backend && \
           git pull && \
           source venv/bin/activate && \
+          which python3 && \
+          which uvicorn && \
           pkill -f "uvicorn app.main:app" || true && \
-          screen -dmS fastapi bash -c "python3 -m uvicorn app.main:app --host 0.0.0.0 --port 8000"'
+          screen -dmS fastapi bash -c "python3 -m uvicorn app.main:app --host 0.0.0.0 --port 8000" && \
+          echo "Deployment completed"'
