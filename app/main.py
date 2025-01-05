@@ -34,11 +34,11 @@ memory_db = {"messages": []}
 
 @app.get("/messages", response_model=Message)
 def get_messages():
-    return Message(core="Default message")
+    return Message(core="Default message", isUser=False)
 
 @app.post("/messages", response_model=Message)
 def post_message(core: str):
-    memory_db["messages"].append(Message(core=core))
+    memory_db["messages"].append(Message(core=core, isUser=True))
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
