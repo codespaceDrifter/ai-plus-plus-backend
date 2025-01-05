@@ -22,9 +22,9 @@ jobs:
         env:
           EC2_IP: ${{ secrets.EC2_IP }}
         run: |
-          ssh -v -i ~/.ssh/id_rsa ubuntu@$EC2_IP 'cd ai-plus-plus-backend && \
+          ssh -v -i ~/.ssh/id_rsa ubuntu@$EC2_IP 'cd /home/ubuntu/ai-plus-plus-backend && \
           git pull && \
           source venv/bin/activate && \
           rm -f app.log && \
           pkill -f "uvicorn main:app" || true && \
-          nohup python -m uvicorn main:app --host 0.0.0.0 --port 8000 > app.log 2>&1 &'
+          nohup python3 -m uvicorn main:app --host 0.0.0.0 --port 8000 > app.log 2>&1 &'
