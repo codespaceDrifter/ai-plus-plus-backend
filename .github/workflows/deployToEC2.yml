@@ -1,0 +1,32 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Configure SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          EC2_IP: ${{ secrets.EC2_IP }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H $EC2_IP >> ~/.ssh/known_hosts
+
+      - name: Deploy to EC2
+        env:
+          EC2_IP: ${{ secrets.EC2_IP }}
+        run: |
+          ssh -i ~/.ssh/id_rsa ubuntu@$EC2_IP 'cd ai-plus-plus-backend && \
+          git pull && \
+          source venv/bin/activate && \
+          pkill -f "uvicorn app.main:app" || true && \
+          screen -dmS fastapi bash -c "python3 -m uvicorn app.main:app --host 0.0.0.0 --port 8000"'
