@@ -41,7 +41,7 @@ memory_db = {"messages": []}
 
 @app.get("/messages", response_model=Message)
 def get_messages():
-    return Message(core="Hello, I'm AI Plus Plus!!!!!!", isUser=False)
+    return Message(core="no glory in wrappers", isUser=False)
 
 @app.post("/messages", response_model=Message)
 def post_message(core: str):
