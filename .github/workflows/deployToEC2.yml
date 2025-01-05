@@ -26,6 +26,6 @@ jobs:
           git pull && \
           source venv/bin/activate && \
           which uvicorn && \
-          echo $PATH && \
           pkill -f "uvicorn main:app" || true && \
+          rm -f app.log && \
           nohup uvicorn main:app --host 0.0.0.0 --port 8000 > app.log 2>&1 &'
