@@ -5,16 +5,17 @@ from app.messageHander import get_message_handler, post_message_handler
 from pydantic import BaseModel
 
 class MessageRequest(BaseModel):
-    core: str
+  core: str
 
 router = APIRouter()
 
 @router.get("/messages")
 async def get_message():
-    return get_message_handler()
+  return get_message_handler()
 
 @router.post("/messages")
 async def post_message(message: MessageRequest):
-    return post_message_handler(message.core)
+  print("Received POST request with message:", message.core)
+  return post_message_handler(message.core)
 
 
