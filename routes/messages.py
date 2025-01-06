@@ -10,11 +10,11 @@ class MessageRequest(BaseModel):
 router = APIRouter()
 
 @router.get("/messages")
-def get_message():
+async def get_message():
     return get_message_handler()
 
 @router.post("/messages")
-def post_message(message: MessageRequest):
+async def post_message(message: MessageRequest):
     return post_message_handler(message.core)
 
 
