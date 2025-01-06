@@ -18,6 +18,8 @@ origins = [
     "https://www.ai-plus-plus.com",
     "http://api.ai-plus-plus.com",
     "https://api.ai-plus-plus.com",
+    "http://ai-plus-plus-balancer-641620202.us-east-1.elb.amazonaws.com",
+    "https://ai-plus-plus-balancer-641620202.us-east-1.elb.amazonaws.com",
 ]
 
 app.add_middleware(
