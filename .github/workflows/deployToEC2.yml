@@ -22,8 +22,8 @@ jobs:
         env:
           EC2_IP: ${{ secrets.EC2_IP }}
         run: |
-          ssh -i ~/.ssh/id_rsa ubuntu@$EC2_IP 'cd /home/ubuntu/ai-plus-plus-backend && \
-          source restart.sh
+          ssh -i ~/.ssh/id_rsa ubuntu@$EC2_IP \
+            'source restart.sh'
 
           # Deploying it does not work so uses a script on ssh computer
 
