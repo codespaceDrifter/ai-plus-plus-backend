@@ -6,4 +6,4 @@ router = APIRouter()
 
 @router.get("/messages")
 def get_messages():
-  return Message(core="lets all love claude", isUser=False)
+  return Message(core="lets all love claude!", isUser=False)
