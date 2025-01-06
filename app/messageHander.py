@@ -9,7 +9,7 @@ class Message(BaseModel):
 class Messages(BaseModel):
     messages: List[Message]
 
-testMessages = Messages();
+testMessages = Messages(messages=[]);
 
 
 def get_message_handler():

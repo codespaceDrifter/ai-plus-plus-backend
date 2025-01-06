@@ -10,7 +10,7 @@ def get_message():
   return get_message_handler()
 
 @router.post("/messages")
-def post_message(message: Message):
-  return post_message_handler(message)
+def post_message(body: dict):
+  return post_message_handler(body["core"])
 
 
