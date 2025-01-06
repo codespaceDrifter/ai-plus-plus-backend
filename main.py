@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List
+from routes.messages import router as messages_router
 
 #certibot generated security key
 
@@ -27,27 +28,11 @@ app.add_middleware(
     expose_headers=["*"]
 )
 
+app.include_router(messages_router)
+
 @app.get("/health")
 async def health_check():
     return {"status": "running"}
-
-class Message(BaseModel):
-    core: str
-    isUser: bool
-
-class Messages(BaseModel):
-    messages: List[Message]
-
-
-memory_db = {"messages": []}
-
-@app.get("/messages", response_model=Message)
-def get_messages():
-    return Message(core="no glory in wrappers", isUser=False)
-
-@app.post("/messages", response_model=Message)
-def post_message(core: str):
-    memory_db["messages"].append(Message(core=core, isUser=True))
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
