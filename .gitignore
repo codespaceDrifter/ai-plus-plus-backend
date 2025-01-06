@@ -1,4 +1,5 @@
 venv
 .env
 *.pem
-ssh-config
+ssh-env
+__pycache__
