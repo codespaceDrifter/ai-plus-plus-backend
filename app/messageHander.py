@@ -18,15 +18,16 @@ def post_message_handler(core: str):
 
 def get_chat_context (context_length: int):
   context_messages = testMessages.messages[-context_length:]
-  messages = [{"role": "system", "content": "Do NOT repeat what you previously said and ONLY answer the LAST USER MESSAGE"}] + [
-      {"role": "user" if message.isUser else "assistant", "content": message.core}
-      for message in context_messages
+  messages = [
+    {"role": "user" if message.isUser else "assistant", "content": message.core}
+    for message in context_messages
   ]
   return messages
 
 def get_message_handler():
   message = client.messages.create(
     model="claude-3-5-sonnet-20241022",
+    system = "Do NOT repeat what you previously said and ONLY answer the LAST USER MESSAGE. previous messages are only for context.",
     max_tokens=1024,
     messages= get_chat_context(context_length)
   )
