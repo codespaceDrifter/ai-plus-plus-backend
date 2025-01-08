@@ -18,7 +18,7 @@ def post_message_handler(core: str):
 
 def get_chat_context (context_length: int):
   context_messages = testMessages.messages[-context_length:]
-  messages = [
+  messages = [{"role": "system", "content": "Do NOT repeat what you previously said and ONLY answer the LAST USER MESSAGE"}] + [
       {"role": "user" if message.isUser else "assistant", "content": message.core}
       for message in context_messages
   ]
