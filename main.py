@@ -33,10 +33,6 @@ app.add_middleware(
 
 app.include_router(messages_router)
 
-print("Available routes:")
-for route in app.routes:
-    print(f"asdf{route.methods} {route.path}")
-
 @app.get("/health")
 async def health_check():
     return {"status": "running"}

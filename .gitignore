@@ -3,3 +3,4 @@ venv
 *.pem
 ssh-env
 __pycache__
+*.db
