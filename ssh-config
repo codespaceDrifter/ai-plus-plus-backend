@@ -1,4 +1,4 @@
-Host AIPlusPlus
+Host Server
     HostName 3.86.239.62    
     User ubuntu     
     IdentityFile C:\Users\silly\Desktop\coding_projects\ai-plus-plus-backend\ssh-env\AIPlusPlusKey.pem

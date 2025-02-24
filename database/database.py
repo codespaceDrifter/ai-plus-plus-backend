@@ -1,9 +1,10 @@
 from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.orm import sessionmaker, declarative_base
+from pathlib import Path
 
-from .models.users import User
+ROOT_DIR = Path(__file__).parent.parent
+DATABASE_URL = f"sqlite:///{ROOT_DIR/'data'/'database.db'}?journal_mode=WAL"
 
-DATABASE_URL = "sqlite:///database.db ? journal_mode=WAL"
 
 engine = create_engine(
   DATABASE_URL,
@@ -11,22 +12,3 @@ engine = create_engine(
 )
 
 Base = declarative_base()
-
-Base.metadata.create_all (engine)
-Session = sessionmaker(
-  autoflush=False,
-  autocommit=False,
-  bind=engine
-)
-
-session = Session()
-
-user = User(name="John", age=30)
-user2 = User(name="Jane", age=25)
-user3 = User(name="Jim", age=35)
-
-users = session.query(User).all()
-
-print(users[0])
-
-session.commit()
