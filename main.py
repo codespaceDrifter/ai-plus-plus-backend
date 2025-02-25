@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List
-from routes.messages import router as messages_router
+from app.routes import router as messages_router
 from anthropic import Anthropic
 
 #certibot generated security key
