@@ -5,8 +5,8 @@ from .database import Base
 class User(Base):
   __tablename__ = "users"
   id = Column(Integer, primary_key=True, autoincrement=True)
-  sub = Column(String, nullable=False)
-  name = Column(String(50), nullable=False)
+  sub = Column(String, nullable=False, unique=True)
+  name = Column(String(50))
   chats = relationship("Chat", back_populates="user")
 
 class Chat(Base):

@@ -2,7 +2,7 @@ from .models import User, Chat, Message
 from .database import engine
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
-from dependencies import token_cache, cognito, security, Depends
+from dependencies import Depends
 
 
 def get_db():
@@ -12,13 +12,26 @@ def get_db():
     finally:
         db.close()
 
+
+def get_or_create_user(sub: str):
+    with Session(engine) as db:
+        user = db.query(User).filter(User.sub == sub).first()
+        if not user:
+            user = User(sub=sub)
+            db.add(user)
+            db.commit()
+            db.refresh(user)
+        return user
+
 #only call this in routed functions that got userid from security token
 def verify_chat(db: Session, user_id: int, chat_id: int):
     chat = db.query(Chat).filter(Chat.id == chat_id).first()
     if chat.user_id != user_id:
-        raise HTTPException(status_code=403, detail="Forbidden")
+        print("Chat Verification Failed Connection Rejected")
+        raise HTTPException(status_code=418, detail="Forbidden")
 
 def create_chat(db: Session, user_id: int):
+    print ("CREATING CHAT")
     chat = Chat(
         user_id = user_id,
         name = "New Chat"
