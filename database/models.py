@@ -12,7 +12,7 @@ class User(Base):
 class Chat(Base):
   __tablename__ = "chats"
   id = Column(Integer, primary_key=True, autoincrement=True)
-  user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+  user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
   messages = relationship("Message", back_populates="chat")
   user = relationship("User", back_populates="chats")
 
@@ -21,6 +21,6 @@ class Message(Base):
   id = Column(Integer, primary_key=True, autoincrement=True)
   core = Column(String, nullable=False)
   is_user = Column(Boolean, nullable=False)
-  chat_id = Column(Integer, ForeignKey("chats.id"), nullable=False)
+  chat_id = Column(Integer, ForeignKey("chats.id"), nullable=False, index=True)
   chat = relationship("Chat", back_populates="messages")
 

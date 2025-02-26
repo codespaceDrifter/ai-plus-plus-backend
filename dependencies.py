@@ -9,10 +9,8 @@ from cachetools import TTLCache
 
 security = HTTPBearer()
 
-# Initialize Cognito client
 cognito = boto3.client('cognito-idp', region_name='us-east-1')
 
-# Cache for verified tokens - stores in RAM for 1 hour
 token_cache = TTLCache(maxsize=100, ttl=3600)  # 3600 seconds = 1 hour
 
 async def get_current_user(credentials: HTTPBearer = Depends(security)):

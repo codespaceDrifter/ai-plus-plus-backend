@@ -1,42 +1,54 @@
 from .models import User, Chat, Message
 from .database import engine
 from sqlalchemy.orm import Session
+from fastapi import HTTPException
+from dependencies import token_cache, cognito, security, Depends
 
-session = Session(engine)
 
-user1 = User(
-  sub = "123",
-  name = "John Doe"
-)
+def get_db():
+    db = Session(engine)
+    try:
+        yield db
+    finally:
+        db.close()
 
-user2 = User(
-  sub = "456",
-  name = "Jane Doe"
-)
+#only call this in routed functions that got userid from security token
+def verify_chat(db: Session, user_id: int, chat_id: int):
+    chat = db.query(Chat).filter(Chat.id == chat_id).first()
+    if chat.user_id != user_id:
+        raise HTTPException(status_code=403, detail="Forbidden")
 
-session.add_all([user1, user2])
-session.commit()
-
-chat1 = Chat(
-  user_id = user1.id,
-  messages = [
-    Message(
-      core = "Hello, how are you?",
-      is_user = True
+def create_chat(db: Session, user_id: int):
+    chat = Chat(
+        user_id = user_id,
+        name = "New Chat"
     )
-  ]
-)
+    db.add(chat)
+    db.commit()
+    db.refresh(chat)
+    return chat
 
-session.add_all([chat1])
-session.commit()
+def read_chats(db: Session, user_id: int):
+    chats = db.query(Chat).filter(Chat.user_id == user_id).all()
+    return chats
 
-print ("session made")
 
-from .models import User, Chat, Message
-from sqlalchemy import select
+def create_message(db: Session, chat_id: int, core: str, is_user: bool):
+    message = Message(
+        chat_id = chat_id,
+        core = core,
+        is_user = is_user
+    )
+    db.add(message)
+    db.commit()
+    db.refresh(message)
+    return message
 
-print ("selecting user")
-user_query = select(User).where(User.id == 1)
-user = session.execute(user_query).scalar_one()
+def read_messages(db: Session, chat_id: int):
+    messages = db.query(Message).filter(Message.chat_id == chat_id).all()
+    return messages
 
-print(user)
+def read_last_message(db: Session, chat_id: int):
+    message = db.query(Message).filter(Message.chat_id == chat_id).order_by(Message.id.desc()).first()
+    return message
+
