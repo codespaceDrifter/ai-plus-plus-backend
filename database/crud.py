@@ -2,7 +2,8 @@ from .models import User, Chat, Message
 from .database import engine
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
-from dependencies import Depends
+from logger import logger
+from dependencies import client
 
 
 def get_db():
@@ -31,7 +32,7 @@ def verify_chat(db: Session, user_id: int, chat_id: int):
         raise HTTPException(status_code=418, detail="Forbidden")
 
 def create_chat(db: Session, user_id: int):
-    print ("CREATING CHAT")
+    logger.info("CREATING CHAT DATABASE")
     chat = Chat(
         user_id = user_id,
         name = "New Chat"
@@ -42,8 +43,21 @@ def create_chat(db: Session, user_id: int):
     return chat
 
 def read_chats(db: Session, user_id: int):
-    chats = db.query(Chat).filter(Chat.user_id == user_id).all()
+    chats = db.query(Chat).filter(Chat.user_id == user_id).order_by(Chat.id.desc()).all()
     return chats
+
+def update_chat_name(db: Session, chat_id: int, name: str):
+    chat = db.query(Chat).filter(Chat.id == chat_id).first()
+    if chat.name == "New Chat":
+        response = client.messages.create(
+            model="claude-3-5-haiku-latest",
+            system="Summarize the essence of the message concisely in 4 words or less, words only no punctuation",
+            max_tokens=4,
+            messages=[{"role": "user", "content": name}]
+        )
+        chat.name = response.content[0].text
+        db.commit()
+        db.refresh(chat)
 
 
 def create_message(db: Session, chat_id: int, core: str, is_user: bool):

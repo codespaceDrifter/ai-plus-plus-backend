@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routes import router as messages_router
 import database
+from logger import logger
 
 app = FastAPI()
 
@@ -20,7 +21,7 @@ origins = [
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -29,9 +30,21 @@ app.add_middleware(
 
 app.include_router(messages_router)
 
+'''
+@app.middleware("http")
+async def log_requests(request, call_next):
+    logger.info(f"Request: {request.method} {request.url.path}")
+    logger.info(f"Headers: {dict(request.headers)}")
+    
+    response = await call_next(request)
+    
+    logger.info(f"Response status: {response.status_code}")
+    return response
+'''
+
 @app.get("/health")
 async def health_check():
     return {"status": "running"}
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000, log_level="debug")
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, log_level="debug", reload=True)

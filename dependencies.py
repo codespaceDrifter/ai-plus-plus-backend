@@ -9,6 +9,7 @@ from fastapi.security import HTTPBearer
 import boto3
 from cachetools import TTLCache
 from database.crud import get_or_create_user
+from logger import logger
 
 security = HTTPBearer()
 cognito = boto3.client('cognito-idp', region_name='us-east-1')
@@ -17,6 +18,9 @@ token_cache = TTLCache(maxsize=100, ttl=3600)  # 3600 seconds = 1 hour
 
 async def get_current_user(credentials: HTTPBearer = Depends(security)):
   token = credentials.credentials
+
+  #logger.info(f"token: {token}")
+
   if token in token_cache:
     return token_cache[token]
 
@@ -36,3 +40,4 @@ async def get_current_user(credentials: HTTPBearer = Depends(security)):
   except Exception as e:
     print ("error: ", e)
     raise HTTPException(status_code=401, detail="Invalid token")
+

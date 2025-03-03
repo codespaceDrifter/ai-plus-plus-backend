@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from typing import List
 from dependencies import client
-from database.crud import read_chats, create_chat, read_messages, create_message, read_last_message
+from database.crud import read_chats, create_chat, read_messages, create_message, update_chat_name
 from sqlalchemy.orm import Session
 
 context_length = 10;
@@ -14,7 +14,7 @@ systemPrompt = (
     " during agentic workflows yourself, always TRY YOUR BEST, never make slop, always make masterpieces with ethereal beauty."
 )
 
-model = "claude-3-5-sonnet-20241022"
+model = "claude-3-7-sonnet-20250219"
 
 class ChatPyd(BaseModel):
     id: int
@@ -25,7 +25,7 @@ class ChatsPyd(BaseModel):
 
 class MessagePyd(BaseModel):
     core: str
-    isUser: bool
+    is_user: bool
 
 class MessagesPyd(BaseModel):
     messages: List[MessagePyd]
@@ -41,22 +41,24 @@ def create_chat_handler(db: Session, user_id: int):
 
 def get_chat_handler(db: Session, chat_id: int):
     messages = read_messages(db, chat_id)
-    return MessagesPyd(messages=[MessagePyd(core=message.core, isUser=message.isUser) for message in messages])
+    return MessagesPyd(messages=[MessagePyd(core=message.core, is_user=message.is_user) for message in messages])
 
 def post_message_handler(db: Session, chat_id: int, message: MessagePyd):
-    create_message(db, chat_id, message.core, message.isUser)
+    create_message(db, chat_id, message.core, message.is_user)
+    update_chat_name(db, chat_id, message.core)
 
 def get_message_handler(db: Session, chat_id: int):
     messages = read_messages(db, chat_id)
     context_messages = messages[-context_length:]
     texts = [
-        {"role: ": "human" if message.isUser else "assistant", " content: ": message.core}
+        {"role": "user" if message.is_user else "assistant", "content": message.core}
         for message in context_messages
     ]
-    response  = client.messages.create(
-        model="claude-3-5-sonnet-20241022",
-        system = systemPrompt,
+    response = client.messages.create(
+        model=model,
+        system=systemPrompt,
         max_tokens=1024,
-        messages= texts
+        messages=texts
     )
-    return MessagePyd(core=response.content[0].text, isUser=False);
+    create_message(db, chat_id, response.content[0].text, False)
+    return MessagePyd(core=response.content[0].text, is_user=False)
